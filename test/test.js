@@ -1,31 +1,42 @@
-const Decentragram = artifacts.require('./Decentragram.sol')
+const Decentragram = artifacts.require("./Decentragram.sol");
 
-require('chai')
-  .use(require('chai-as-promised'))
-  .should()
+require("chai")
+  .use(require("chai-as-promised"))
+  .should();
 
-contract('Decentragram', ([deployer, author, tipper]) => {
-  let decentragram
+contract("Decentragram", ([deployer, author, tipper]) => {
+  let decentragram;
 
   before(async () => {
-    decentragram = await Decentragram.deployed()
-  })
+    decentragram = await Decentragram.deployed();
+  });
 
-  describe('deployment', async () => {
-    it('deploys successfully', async () => {
-      const address = await decentragram.address
-      assert.notEqual(address, 0x0)
-      assert.notEqual(address, '')
-      assert.notEqual(address, null)
-      assert.notEqual(address, undefined)
-    })
+  describe("deployment", async () => {
+    it("deploys successfully", async () => {
+      const address = await decentragram.address;
+      assert.notEqual(address, 0x0);
+      assert.notEqual(address, "");
+      assert.notEqual(address, null);
+      assert.notEqual(address, undefined);
+    });
 
-    it('has a name', async () => {
-      const name = await decentragram.name()
-      assert.equal(name, 'Decentragram')
-    })
-  })
+    it("has a name", async () => {
+      const name = await decentragram.name();
+      assert.equal(name, "Decentragram");
+    });
+  });
 
+  describe("images", async () => {
+    let result;
+
+    it("creates images", async () => {
+      // ⌄ silly example. if you input 2 instead of 1, the test still passes.
+      // result = await decentragram.uploadImage();
+      // let image = await decentragram.images(1);
+      // console.log(image);
+    });
+  });
+  /*
   describe('images', async () => {
     let result, imageCount
     const hash = 'QmV8cfu6n4NT5xRr2AHdKxFMTZEJrA44qgrBCr739BN9Wb'
@@ -97,4 +108,5 @@ contract('Decentragram', ([deployer, author, tipper]) => {
       await decentragram.tipImageOwner(99, { from: tipper, value: web3.utils.toWei('1', 'Ether')}).should.be.rejected;
     })
   })
-})
+*/
+});

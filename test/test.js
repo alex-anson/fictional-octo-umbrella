@@ -1,3 +1,5 @@
+const { assert } = require("chai");
+
 const Decentragram = artifacts.require("./Decentragram.sol");
 
 require("chai")
@@ -27,86 +29,107 @@ contract("Decentragram", ([deployer, author, tipper]) => {
   });
 
   describe("images", async () => {
-    let result;
-
-    it("creates images", async () => {
-      // ⌄ silly example. if you input 2 instead of 1, the test still passes.
-      // result = await decentragram.uploadImage();
-      // let image = await decentragram.images(1);
-      // console.log(image);
-    });
-  });
-  /*
-  describe('images', async () => {
-    let result, imageCount
-    const hash = 'QmV8cfu6n4NT5xRr2AHdKxFMTZEJrA44qgrBCr739BN9Wb'
+    let result, imageCount;
+    const hash = "abc123";
 
     before(async () => {
-      result = await decentragram.uploadImage(hash, 'Image description', { from: author })
-      imageCount = await decentragram.imageCount()
-    })
+      // ƒn arguments, followed by { from: author } -- providing metadata to the ƒn. simulating who called the ƒn inside of the test. translates to msg.sender inside the smart contract.
+      result = await decentragram.uploadImage(hash, "Image description", {
+        from: author,
+      });
+      imageCount = await decentragram.imageCount();
+    });
 
-    //check event
-    it('creates images', async () => {
-      // SUCESS
-      assert.equal(imageCount, 1)
-      const event = result.logs[0].args
-      assert.equal(event.id.toNumber(), imageCount.toNumber(), 'id is correct')
-      assert.equal(event.hash, hash, 'Hash is correct')
-      assert.equal(event.description, 'Image description', 'description is correct')
-      assert.equal(event.tipAmount, '0', 'tip amount is correct')
-      assert.equal(event.author, author, 'author is correct')
-
+    it("creates images", async () => {
+      // SUCCESS
+      assert.equal(imageCount, 1);
+      const event = result.logs[0].args;
+      assert.equal(event.id.toNumber(), imageCount.toNumber(), "id is correct");
+      assert.equal(event.hash, hash, "hash is correct");
+      assert.equal(
+        event.description,
+        "Image description",
+        "description is correct"
+      );
+      assert.equal(event.tipAmount, "0", "tip amount is correct");
+      assert.equal(event.author, author, "author is correct");
 
       // FAILURE: Image must have hash
-      await decentragram.uploadImage('', 'Image description', { from: author }).should.be.rejected;
+      await decentragram.uploadImage("", "Image description", {
+        from: author,
+      }).should.be.rejected;
 
       // FAILURE: Image must have description
-      await decentragram.uploadImage('Image hash', '', { from: author }).should.be.rejected;
-    })
+      await decentragram.uploadImage(hash, "", {
+        from: author,
+      }).should.be.rejected;
+    });
 
-    //check from Struct
-    it('lists images', async () => {
-      const image = await decentragram.images(imageCount)
-      assert.equal(image.id.toNumber(), imageCount.toNumber(), 'id is correct')
-      assert.equal(image.hash, hash, 'Hash is correct')
-      assert.equal(image.description, 'Image description', 'description is correct')
-      assert.equal(image.tipAmount, '0', 'tip amount is correct')
-      assert.equal(image.author, author, 'author is correct')
-    })
+    // run basic test to show how images get listed out on the page. this is what'll happen on the client side
+    // Check from Struct
+    it("lists images", async () => {
+      const image = await decentragram.images(imageCount);
+      assert.equal(image.id.toNumber(), imageCount.toNumber(), "id is correct");
+      assert.equal(image.hash, hash, "Hash is correct");
+      assert.equal(
+        image.description,
+        "Image description",
+        "description is correct"
+      );
+      assert.equal(image.tipAmount, "0", "tip amount is correct");
+      assert.equal(image.author, author, "author is correct");
+    });
 
-    it('allows users to tip images', async () => {
+    it("allows users to tip images", async () => {
       // Track the author balance before purchase
-      let oldAuthorBalance
-      oldAuthorBalance = await web3.eth.getBalance(author)
-      oldAuthorBalance = new web3.utils.BN(oldAuthorBalance)
+      let oldAuthorBalance;
+      // get the balance of the author
+      oldAuthorBalance = await web3.eth.getBalance(author);
+      oldAuthorBalance = new web3.utils.BN(oldAuthorBalance);
 
-      result = await decentragram.tipImageOwner(imageCount, { from: tipper, value: web3.utils.toWei('1', 'Ether') })
+      result = await decentragram.tipImageOwner(imageCount, {
+        // tipper is a different account (see line 9)
+        from: tipper,
+        // this is how you determine msg.value
+        value: web3.utils.toWei("1", "Ether"),
+        // ^ toWei - it's like ethereum's pennies - since we're using unsigned integers, we can't have decimal places.
+        // always convert your ether to wei when sending cryptocurrency
+      });
 
       // SUCCESS
-      const event = result.logs[0].args
-      assert.equal(event.id.toNumber(), imageCount.toNumber(), 'id is correct')
-      assert.equal(event.hash, hash, 'Hash is correct')
-      assert.equal(event.description, 'Image description', 'description is correct')
-      assert.equal(event.tipAmount, '1000000000000000000', 'tip amount is correct')
-      assert.equal(event.author, author, 'author is correct')
+      const event = result.logs[0].args;
+      assert.equal(event.id.toNumber(), imageCount.toNumber(), "id is correct");
+      assert.equal(event.hash, hash, "Hash is correct");
+      assert.equal(
+        event.description,
+        "Image description",
+        "description is correct"
+      );
+      assert.equal(
+        event.tipAmount,
+        "1000000000000000000",
+        "tip amount is correct"
+      );
+      assert.equal(event.author, author, "author is correct");
 
       // Check that author received funds
-      let newAuthorBalance
-      newAuthorBalance = await web3.eth.getBalance(author)
-      newAuthorBalance = new web3.utils.BN(newAuthorBalance)
+      let newAuthorBalance;
+      newAuthorBalance = await web3.eth.getBalance(author);
+      newAuthorBalance = new web3.utils.BN(newAuthorBalance);
 
-      let tipImageOwner
-      tipImageOwner = web3.utils.toWei('1', 'Ether')
-      tipImageOwner = new web3.utils.BN(tipImageOwner)
+      let tipImageOwner;
+      tipImageOwner = web3.utils.toWei("1", "Ether");
+      tipImageOwner = new web3.utils.BN(tipImageOwner);
 
-      const expectedBalance = oldAuthorBalance.add(tipImageOwner)
+      const expectedBalance = oldAuthorBalance.add(tipImageOwner);
 
-      assert.equal(newAuthorBalance.toString(), expectedBalance.toString())
+      assert.equal(newAuthorBalance.toString(), expectedBalance.toString());
 
       // FAILURE: Tries to tip a image that does not exist
-      await decentragram.tipImageOwner(99, { from: tipper, value: web3.utils.toWei('1', 'Ether')}).should.be.rejected;
-    })
-  })
-*/
+      await decentragram.tipImageOwner(99, {
+        from: tipper,
+        value: web3.utils.toWei("1", "Ether"),
+      }).should.be.rejected;
+    });
+  });
 });
